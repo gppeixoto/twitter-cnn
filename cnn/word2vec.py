@@ -1,10 +1,12 @@
+from datetime import datetime
 from gensim.models.word2vec import Word2Vec
 from processor import process
 from random import choice
 from string import hexdigits
-from datetime import datetime
-import ujson as json
+
+import gensim
 import os
+import ujson as json
 
 TWEET_SUFFIX = "tweets.json"
 TEXT = "text"
@@ -17,9 +19,10 @@ class TweetCorpusReader(object):
     Reads and parses tweets on the fly, returning
         only those that have at least two tokens.
     """
-    def __init__(self, data_path):
+    def __init__(self, data_path, text_only=True):
         super(TweetCorpusReader, self).__init__()
         self.data_path = data_path
+        self.text_only = text_only
 
     def load_and_process(self, doc):
         doc = json.loads(doc)
@@ -36,7 +39,8 @@ class TweetCorpusReader(object):
             with open(json_file, "r") as f_in:
                 tweets_in_file = [self.load_and_process(doc) for doc in f_in]
                 for tweet, label in tweets_in_file:
-                    if len(tweet) > 1: yield (tweet, label)
+                    if len(tweet) > 1:
+                        yield tweet if self.text_only else (tweet, label)
 
 def train_w2v_model(corpus_path, model_path):
     corpus = TweetCorpusReader(corpus_path)
