@@ -1,11 +1,11 @@
 from datetime import datetime
-from gensim.models.word2vec import Word2Vec
+from gensim.models import word2vec
 from processor import process
 from random import choice
 from string import hexdigits
 
-import gensim
 import os
+import time
 import ujson as json
 
 TWEET_SUFFIX = "tweets.json"
@@ -42,15 +42,24 @@ class TweetCorpusReader(object):
                     if len(tweet) > 1:
                         yield tweet if self.text_only else (tweet, label)
 
-def train_w2v_model(corpus_path, model_path):
-    corpus = TweetCorpusReader(corpus_path)
-    model = Word2Vec(corpus, workers=4, window=3)
-    model.init_sims(replace=True)
-    if not os.path.exists(MODELS_DIR):
-        os.mkdir(MODELS_DIR)
+def get_model_name():
     rand_preffix = ''.join(choice(hexdigits) for i in xrange(6)).lower()
     now = time.time()
     dt = datetime.fromtimestamp(now)
     ts = "%d%d%dT%d%d" % (dt.year, dt.month, dt.day, dt.hour, dt.minute)
-    model_name = rand_preffix + '_' + ts + ".model"
+    return rand_preffix + '_' + ts + ".model"
+
+
+def train_w2v_model(corpus_path, model_path):
+    assert word2vec.FAST_VERSION == 1
+
+    model_name = get_model_name()
+    print "training model: {0}...".format(model_name)
+    corpus = TweetCorpusReader(corpus_path)
+    model = word2vec.Word2Vec(corpus, workers=4, window=3)
+
+    model.init_sims(replace=True)
+    if not os.path.exists(MODELS_DIR):
+        os.mkdir(MODELS_DIR)
+
     model.save('{0}/{1}'.format(model_path, model_name))
