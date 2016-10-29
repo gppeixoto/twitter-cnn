@@ -1,6 +1,6 @@
 import ujson as json
 import re
-from twokenize import tokenize
+from twokenize import tokenizeRawTweetText
 from nltk.corpus import stopwords
 from string import digits, punctuation
 import re
@@ -53,7 +53,7 @@ def placeholder_and_lower(token):
         return token.lower()
 
 def process(text):
-    tokens = tokenize(text)
+    tokens = tokenizeRawTweetText(text)
     tokens = filter(should_be_kept, tokens)
     tokens = map(placeholder_and_lower, tokens)
     return tokens
