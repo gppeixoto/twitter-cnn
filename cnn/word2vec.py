@@ -4,14 +4,12 @@ from processor import process
 from random import choice
 from string import hexdigits
 
-import os
-import time
+import logging, os, sys, time
 import ujson as json
 
 TWEET_SUFFIX = "tweets.json"
 TEXT = "text"
 LABEL = "label"
-MODELS_DIR = "w2v_models"
 
 class TweetCorpusReader(object):
     """
@@ -52,14 +50,20 @@ def get_model_name():
 
 def train_w2v_model(corpus_path, model_path):
     assert word2vec.FAST_VERSION == 1
+    logging.basicConfig(
+        format='%(asctime)s : %(levelname)s : %(message)s',
+        level=logging.INFO)
 
     model_name = get_model_name()
-    print "training model: {0}...".format(model_name)
     corpus = TweetCorpusReader(corpus_path)
     model = word2vec.Word2Vec(corpus, workers=4, window=3)
 
     model.init_sims(replace=True)
-    if not os.path.exists(MODELS_DIR):
-        os.mkdir(MODELS_DIR)
+    if not os.path.exists(model_path):
+        os.mkdir(model_path)
 
     model.save('{0}/{1}'.format(model_path, model_name))
+
+if __name__ == '__main__':
+    corpus_path = sys.argv[-2]
+    model_path = sys.argv[-1]
