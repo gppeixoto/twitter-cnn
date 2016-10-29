@@ -57,8 +57,8 @@ def train_w2v_model(corpus_path, model_path):
     model_name = get_model_name()
     corpus = TweetCorpusReader(corpus_path)
     model = word2vec.Word2Vec(corpus, workers=4, window=3)
-
     model.init_sims(replace=True)
+    
     if not os.path.exists(model_path):
         os.mkdir(model_path)
 
