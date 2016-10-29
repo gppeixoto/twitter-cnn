@@ -47,7 +47,7 @@ def get_model_name():
     ts = "%d%d%dT%d%d" % (dt.year, dt.month, dt.day, dt.hour, dt.minute)
     return rand_preffix + '_' + ts + ".model"
 
-
+# TODO: Add a metadata file with features of model.
 def train_w2v_model(corpus_path, model_path):
     assert word2vec.FAST_VERSION == 1
     logging.basicConfig(
@@ -67,3 +67,4 @@ def train_w2v_model(corpus_path, model_path):
 if __name__ == '__main__':
     corpus_path = sys.argv[-2]
     model_path = sys.argv[-1]
+    train_w2v_model(corpus_path, model_path)
