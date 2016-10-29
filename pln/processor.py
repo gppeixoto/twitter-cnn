@@ -39,11 +39,10 @@ def is_too_short(token):
 
 def should_be_kept(token):
     token = token.lower()
-    return not (
-            token in EMOJIS or \
-            only_digits_or_punctuation(token) or \
-            is_too_short(token)
-        )
+    return not (token in EN_STOP or \
+        token in EMOJIS or \
+        only_digits_or_punctuation(token) or \
+        is_too_short(token))
 
 def placeholder_and_lower(token):
     if token[0] == "@":
