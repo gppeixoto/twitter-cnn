@@ -26,9 +26,9 @@ NEG = [':(', '):', ':-(', ')-:']
 EMOJIS = POS + NEG
 BAD_CHARS = digits + punctuation
 CUT = 3
-MENTION = "<MNT/>"
-URL = "<URL/>"
-PAD = "<PAD/>"
+MENTION = "<mnt/>"
+URL = "<url/>"
+PAD = "<pad/>"
 
 def is_url(token):
     return urlrxp.match(token) is not None

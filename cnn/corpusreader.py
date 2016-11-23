@@ -8,7 +8,7 @@ import numpy as np
 TWEET_SUFFIX = "tweets.json"
 TEXT = "text"
 LABEL = "label"
-PAD = "<PAD/>"
+PAD = "<pad/>"
 
 class TweetCorpusReader(object):
     """
@@ -29,6 +29,9 @@ class TweetCorpusReader(object):
         text = parse(doc[TEXT])
         label = doc[LABEL]
         return (text, label)
+
+    def set_w2i(self, w2i):
+        self.w2i = w2i
 
     def __pad__(self, sequence):
         sequence = [token for token in sequence if token in self.w2i]

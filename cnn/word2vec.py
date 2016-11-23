@@ -21,9 +21,9 @@ def train_w2v_model(corpus_path, model_path):
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
     model_name = get_model_name()
-    corpus = TweetCorpusReader(corpus_path)
+    reader = TweetCorpusReader(corpus_path)
     model = word2vec.Word2Vec(
-        corpus, workers=4, window=3, size=hyper_params.EMBEDDING_DIM, min_count=3)
+        reader, workers=4, window=3, size=hyper_params.EMBEDDING_DIM, min_count=3)
     model.init_sims(replace=True)
 
     if not os.path.exists(model_path):
