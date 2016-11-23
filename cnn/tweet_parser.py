@@ -52,7 +52,7 @@ def placeholder_and_lower(token):
     else:
         return token.lower()
 
-def process(text):
+def parse(text):
     tokens = tokenizeRawTweetText(text)
     tokens = filter(should_be_kept, tokens)
     tokens = map(placeholder_and_lower, tokens)
