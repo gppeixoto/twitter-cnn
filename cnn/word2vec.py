@@ -1,12 +1,13 @@
 from corpusreader import TweetCorpusReader
 from datetime import datetime
 from gensim.models import word2vec
-from processor import process
 from random import choice
 from string import hexdigits
 
 import hyper_params, logging, os, sys, time
 import ujson as json
+
+ON = 1
 
 def get_model_name():
     rand_preffix = ''.join(choice(hexdigits) for i in xrange(6)).lower()
@@ -16,18 +17,13 @@ def get_model_name():
     return rand_preffix + '_' + ts + ".model"
 
 def train_w2v_model(corpus_path, model_path):
-    assert word2vec.FAST_VERSION == 1
-    logging.basicConfig(
-        format='%(asctime)s : %(levelname)s : %(message)s',
-        level=logging.INFO)
+    assert word2vec.FAST_VERSION is ON, "word2vec.FAST_VERSION is OFF"
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
     model_name = get_model_name()
     corpus = TweetCorpusReader(corpus_path)
     model = word2vec.Word2Vec(
-        corpus,
-        workers=4,
-        window=3,
-        size=hyper_params.EMBEDDING_DIM)
+        corpus, workers=4, window=3, size=hyper_params.EMBEDDING_DIM, min_count=3)
     model.init_sims(replace=True)
 
     if not os.path.exists(model_path):
