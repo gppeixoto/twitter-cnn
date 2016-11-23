@@ -57,4 +57,4 @@ class SingleLayerCNN(object):
         return model
 
     def word2index(self):
-        return {word: (i + 1) for i, word in enumerate(self.w2v.index2word)}
+        return {word: i for i, word in enumerate(self.w2v.index2word)}
