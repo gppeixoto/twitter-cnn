@@ -13,6 +13,7 @@ class SingleLayerCNN(object):
         self.emb_dim = emb_dim
         self.filter_len = filter_len
         self.feature_maps = feature_maps
+        self.w2v = None
         self.model = self.__build_cnn__(w2v_model_path)
 
     def __build_conv_layer__(self):
@@ -38,14 +39,14 @@ class SingleLayerCNN(object):
     def __build_cnn__(self, w2v_model_path):
         conv = self.__build_conv_layer__()
         main_input = Input(shape=(self.seq_len,), dtype='int32', name='main_input')
-        w2v = Word2Vec.load(w2v_model_path)
-        vocab_size = len(w2v.vocab)
+        self.w2v = Word2Vec.load(w2v_model_path)
+        vocab_size = len(self.w2v.vocab)
 
         embedding = Embedding(
             input_dim=vocab_size,
             output_dim=self.emb_dim,
             input_length=self.seq_len,
-            weights=[w2v.syn0])(main_input)
+            weights=[self.w2v.syn0])(main_input)
 
         conv = conv(embedding)
         conv = Dropout(.5)(conv)
@@ -54,3 +55,6 @@ class SingleLayerCNN(object):
         model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
         return model
+
+    def word2index(self):
+        return {word: (i + 1) for i, word in enumerate(self.w2v.index2word)}
