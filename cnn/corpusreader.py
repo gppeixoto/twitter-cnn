@@ -45,6 +45,9 @@ class TweetCorpusReader(object):
 
         return padded
 
+    def __get_output__(self, label):
+        return np.array([1.0, 0.0]) if label == 1 else np.array([0.0, 1.0])
+
     def __iter__(self):
         json_files = []
         for json_file in os.listdir(self.data_path):
@@ -61,6 +64,6 @@ class TweetCorpusReader(object):
                     for tweet, label in tweets_in_file:
                         if len(tweet) > 1:
                             indexes = self.__pad__(tweet)
-                            yield (np.array(indexes), label if label == 1 else 0)
+                            yield (np.array(indexes), self.__get_output__(label))
             if self.debug:
                 break
