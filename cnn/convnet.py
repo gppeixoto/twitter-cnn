@@ -27,7 +27,7 @@ class SingleLayerCNN(object):
             conv = Convolution1D(
                 nb_filter=self.feature_maps,
                 filter_length=filter_length,
-                activation='tanh')(emb_input)
+                activation='relu')(emb_input)
             conv = MaxPooling1D(self.seq_len - filter_length)(conv)
             conv = Flatten()(conv)
             conv_layers.append(conv)
@@ -50,7 +50,7 @@ class SingleLayerCNN(object):
 
         conv = conv(embedding)
         conv = Dropout(.5)(conv)
-        conv = Dense(2, activation="softmax")(conv)
+        conv = Dense(1, activation="softmax")(conv)
         model = Model(input=main_input, output=conv)
         model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
