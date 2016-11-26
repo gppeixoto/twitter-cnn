@@ -18,22 +18,25 @@ class SingleLayerCNN(object):
         self.w2v = None
         self.w2v_model_path = w2v_model_path
         self.model = self.__build_cnn__(w2v_model_path)
+        assert emb_dim == self.w2v.vector_size, \
+            'word2vec expects vector_size=%d, actual=%d' % (self.w2v.vector_size, emb_dim)
 
-    def describe_params(self):
+    def describe_params(self, hist):
         return {
             "seq_len": self.seq_len,
             "emb_dim": self.emb_dim,
             "filter_len": self.filter_len,
             "feature_maps": self.feature_maps,
             "w2v": self.w2v_model_path,
+            "hist": hist
         }
 
-    def save_model(self):
+    def save_model(self, hist):
         now = asctime().replace(' ', '_')
         prefix = "cnn_{0}".format(now)
         self.model.save('../models/cnn/{0}.hd5'.format(prefix))
         with open('../models/cnn/{0}.json'.format(prefix), 'w') as f_config:
-            metadata = self.describe_params()
+            metadata = self.describe_params(hist)
             f_config.write(json.dumps(metadata))
 
 
