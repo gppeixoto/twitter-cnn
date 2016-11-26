@@ -9,8 +9,8 @@ from datetime import datetime
 from random import choice
 from string import hexdigits
 
-POS = [':)', '(:', ':-)', '(-:']
-NEG = [':(', '):', ':-(', ')-:']
+POS = [":)", "(:", ":-)", "(-:"]
+NEG = [":(", "):", ":-(", ")-:"]
 
 class TweetCrawler:
     LANG = "lang"
@@ -26,7 +26,7 @@ class TweetCrawler:
         self.buffer_limit = buffer_limit
 
     def trim(self, text):
-        text = text.replace('\n', '').strip()
+        text = text.replace("\n", ").strip()
         label = +1 if any(text.find(i) != -1 for i in POS) else -1
         return json.dumps({"text": text, "label": label})
 
@@ -56,7 +56,7 @@ class TweetCrawler:
         self.stream = api.GetStreamFilter(track=self.keywords)
 
     def __random_prefix__(self):
-        return ''.join([choice(hexdigits) for i in xrange(6)])
+        return ".join([choice(hexdigits) for i in xrange(6)])
 
     def is_buffer_full(self):
         return len(self.buffer) >= self.buffer_limit
@@ -70,13 +70,13 @@ class TweetCrawler:
 
     def dump_buffer(self, path):
         fname = path + self.get_file_name()
-        with codecs.open(fname, 'w', "utf-8") as f:
+        with codecs.open(fname, "w", "utf-8") as f:
             for tweet in self.buffer:
                 tweet = self.trim(tweet)
                 f.write(tweet + TweetCrawler.NEW_LINE)
         self.buffer = []
 
-    def crawl_tweets(self, keywords=None, path='./data/'):
+    def crawl_tweets(self, keywords=None, path="./data/"):
         if keywords is not None:
             self.keywords = keywords
         self.init_stream()
@@ -84,7 +84,7 @@ class TweetCrawler:
             print "Tweet: %d" % i
             if self.__is_tweet_valid__(tweet) and not self.is_buffer_full():
                 self.buffer.append(tweet[TweetCrawler.TEXT])
-                print 'Valid on buffer: %d' % len(self.buffer)
+                print "Valid on buffer: %d" % len(self.buffer)
             elif self.is_buffer_full():
                 print "Dumping...\n...\n"
                 self.dump_buffer(path)
@@ -94,10 +94,10 @@ class TweetCrawler:
 def main():
     keywords = POS + NEG
     limit = sys.argv[-1]
-    crawler = TweetCrawler('./crawler/keys.txt',
+    crawler = TweetCrawler("./crawler/keys.txt",
        keywords=keywords,
        buffer_limit=1000)
     crawler.crawl_tweets()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
