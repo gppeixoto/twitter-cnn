@@ -12,14 +12,12 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support as prfs
 from time import time
 
-# TODO: test passing generator to avoid storing data in memory
-
-model_path = '../models/f40db9_Thu_Nov_24_10:38:27_2016.model' #emb_dim=200
-cnn_200 = convnet.SingleLayerCNN(
-    SEQUENCE_LENGTH, 200, [4, 5, 6, 7], FEATURE_MAPS, model_path)
+model_path = '../models/cf1e71_Thu_Nov_24_08:34:59_2016.model'
+cnn_20 = convnet.SingleLayerCNN(
+    SEQUENCE_LENGTH, 20, [4, 5, 6, 7], FEATURE_MAPS, model_path)
 
 split = .7
-embedding_reader = TweetCorpusReader('../data/', w2i=cnn_200.word2index())
+embedding_reader = TweetCorpusReader('../data/', w2i=cnn_20.word2index())
 print 'Reading dataset for embedding...'
 t = time()
 x, y = map(lambda val: np.array(val), zip(*embedding_reader))
@@ -52,9 +50,9 @@ x_test, y_test = (x_balanced[cut:], y_balanced[cut:])
 ################# ConvNet Evaluation ######################
 ###########################################################
 
-hist = cnn_200.model.fit(x_train, y_train, nb_epoch=10)
-cnn_200.save_model()
-cnn_pred = cnn_200.model.predict(x_test)
+hist = cnn_20.model.fit(x_train, y_train, nb_epoch=10)
+cnn_20.save_model(hist)
+cnn_pred = cnn_20.model.predict(x_test)
 
 y_true = np.array([np.argmax(i) for i in y_test])
 y_pred = np.array([np.argmax(i) for i in cnn_pred])
