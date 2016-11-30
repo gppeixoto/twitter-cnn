@@ -16,7 +16,7 @@ class TweetCorpusReader(object):
     Reads and parses tweets on the fly, returning
         only those that have at least two tokens.
     """
-    def __init__(self, data_path, text_only=True, w2i=None, debug=False):
+    def __init__(self, data_path, text_only=True, w2i=None, debug=False, should_pad=True):
         super(TweetCorpusReader, self).__init__()
         self.data_path = data_path
         self.text_only = text_only
@@ -24,10 +24,11 @@ class TweetCorpusReader(object):
         self.w2i = w2i
         self.unk = None if w2i is None else len(self.w2i)
         self.debug = debug
+        self.should_pad = should_pad
 
     def load_and_process(self, doc):
         doc = json.loads(doc)
-        text = parse(doc[TEXT])
+        text = parse(doc[TEXT], should_pad=self.should_pad)
         label = doc[LABEL]
         return (text, label)
 
