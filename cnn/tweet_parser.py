@@ -62,8 +62,8 @@ def placeholder_and_lower(token):
     else:
         return token.lower()
 
-def parse(text):
+def parse(text, should_pad=True):
     tokens = tokenizeRawTweetText(text)
     tokens = filter(should_be_kept, tokens)
     tokens = map(placeholder_and_lower, tokens)
-    return pad(tokens)
+    return pad(tokens) if should_pad else tokens
