@@ -3,6 +3,7 @@ import re
 from twokenize import tokenizeRawTweetText
 from nltk.corpus import stopwords
 from string import digits, punctuation
+from hyper_params import SEQUENCE_LENGTH
 import re
 
 # "not" shouldn't be a stop word, given it's a polarity changer
@@ -25,8 +26,9 @@ NEG = [':(', '):', ':-(', ')-:']
 EMOJIS = POS + NEG
 BAD_CHARS = digits + punctuation
 CUT = 3
-MENTION = "<MNT>"
-URL = "<URL>"
+MENTION = "<mnt/>"
+URL = "<url/>"
+PAD = "<pad/>"
 
 def is_url(token):
     return urlrxp.match(token) is not None
@@ -36,6 +38,14 @@ def only_digits_or_punctuation(token):
 
 def is_too_short(token):
     return len(token) < CUT
+
+def pad(sequence):
+    len_seq = len(sequence)
+    if len_seq > SEQUENCE_LENGTH:
+        return sequence[-SEQUENCE_LENGTH:]
+    padded = [PAD] * SEQUENCE_LENGTH
+    padded[-len_seq:] = sequence
+    return padded
 
 def should_be_kept(token):
     token = token.lower()
@@ -52,8 +62,8 @@ def placeholder_and_lower(token):
     else:
         return token.lower()
 
-def parse(text):
+def parse(text, should_pad=True):
     tokens = tokenizeRawTweetText(text)
     tokens = filter(should_be_kept, tokens)
     tokens = map(placeholder_and_lower, tokens)
-    return tokens
+    return pad(tokens) if should_pad else tokens

@@ -4,6 +4,8 @@ from keras.layers import Dense, Dropout, Embedding, Flatten, Input, Merge, Convo
 from types import ListType
 
 import hyper_params
+import ujson as json
+from time import asctime
 
 class SingleLayerCNN(object):
     """docstring for SingleLayerCNN."""
@@ -13,7 +15,30 @@ class SingleLayerCNN(object):
         self.emb_dim = emb_dim
         self.filter_len = filter_len
         self.feature_maps = feature_maps
+        self.w2v = None
+        self.w2v_model_path = w2v_model_path
         self.model = self.__build_cnn__(w2v_model_path)
+        assert emb_dim == self.w2v.vector_size, \
+            'word2vec expects vector_size=%d, actual=%d' % (self.w2v.vector_size, emb_dim)
+
+    def describe_params(self, hist):
+        return {
+            "seq_len": self.seq_len,
+            "emb_dim": self.emb_dim,
+            "filter_len": self.filter_len,
+            "feature_maps": self.feature_maps,
+            "w2v": self.w2v_model_path,
+            "hist": hist
+        }
+
+    def save_model(self, hist):
+        now = asctime().replace(' ', '_')
+        prefix = "cnn_{0}".format(now)
+        self.model.save('../models/cnn/{0}.hd5'.format(prefix))
+        with open('../models/cnn/{0}.json'.format(prefix), 'w') as f_config:
+            metadata = self.describe_params(hist)
+            f_config.write(json.dumps(metadata))
+
 
     def __build_conv_layer__(self):
         layer_name = "embedding_input"
@@ -26,7 +51,7 @@ class SingleLayerCNN(object):
             conv = Convolution1D(
                 nb_filter=self.feature_maps,
                 filter_length=filter_length,
-                activation='tanh')(emb_input)
+                activation='relu')(emb_input)
             conv = MaxPooling1D(self.seq_len - filter_length)(conv)
             conv = Flatten()(conv)
             conv_layers.append(conv)
@@ -38,19 +63,22 @@ class SingleLayerCNN(object):
     def __build_cnn__(self, w2v_model_path):
         conv = self.__build_conv_layer__()
         main_input = Input(shape=(self.seq_len,), dtype='int32', name='main_input')
-        w2v = Word2Vec.load(w2v_model_path)
-        vocab_size = len(w2v.vocab)
+        self.w2v = Word2Vec.load(w2v_model_path)
+        vocab_size = len(self.w2v.vocab)
 
         embedding = Embedding(
             input_dim=vocab_size,
             output_dim=self.emb_dim,
             input_length=self.seq_len,
-            weights=[w2v.syn0])(main_input)
+            weights=[self.w2v.syn0])(main_input)
 
         conv = conv(embedding)
         conv = Dropout(.5)(conv)
         conv = Dense(2, activation="softmax")(conv)
         model = Model(input=main_input, output=conv)
-        model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
         return model
+
+    def word2index(self):
+        return {word: i for i, word in enumerate(self.w2v.index2word)}
